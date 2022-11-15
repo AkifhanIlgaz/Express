@@ -3,12 +3,77 @@ import data from "./data/mock.json" assert { type: "json" };
 
 const app = express();
 
-const PORT = 3000;
+const PORT = 4000;
+
+// Using the public folder at the root of our project
+app.use(express.static("public"));
+
+// Using the images folder at the route /images
+app.use("/images", express.static("images"));
 
 // GET
 app.get("/", (request, response) => {
-  response.send("This is a GET request at /");
+  response.json(data);
 });
+
+// GET with next
+app.get(
+  "/next",
+  (req, res, next) => {
+    console.log("The response will be sent by the next function.");
+    next();
+  },
+  (req, res) => {
+    res.send("I just set up a route with a second callback");
+  }
+);
+
+// GET - redirect method
+app.get("/redirect", (request, response) => {
+  response.redirect("http://linkedin.com");
+});
+
+// GET - download method
+app.get("/download", (request, response) => {
+  response.download("./public/mountains_1.jpeg");
+});
+
+// GET with routing parameters
+app.get("/class/:id", (req, res) => {
+  const studentId = Number(req.params.id);
+
+  const student = data.find((stud) => stud.id === studentId);
+
+  res.send(student);
+});
+
+// Route chaining
+app
+  .route("/class")
+  .get((request, response) => {
+    response.send("Retrieve class info");
+  })
+  .post((request, response) => {
+    response.send("Create class info");
+  })
+  .put((request, response) => {
+    response.send("Update class info");
+  });
+
+// // GET
+// app.get("/class", (request, response) => {
+//   response.send("Retrieve class info");
+// });
+
+// // POST
+// app.post("/class", (request, response) => {
+//   response.send("Create class info");
+// });
+
+// // PUT
+// app.put("/class", (request, response) => {
+//   response.send("Update class info");
+// });
 
 // POST
 app.post("/create", (request, response) => {
@@ -26,6 +91,5 @@ app.delete("/delete", (request, response) => {
 });
 
 app.listen(PORT, () => {
-  console.log(data);
   console.log(`The server is running on port ${PORT}`);
 });
