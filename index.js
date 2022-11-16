@@ -1,4 +1,4 @@
-import express from "express";
+import express, { response } from "express";
 import data from "./data/mock.json" assert { type: "json" };
 
 const app = express();
@@ -11,9 +11,23 @@ app.use(express.static("public"));
 // Using the images folder at the route /images
 app.use("/images", express.static("images"));
 
+// Using express.json and express.urlencoded
+//app.use(express.json());
+app.use(
+  express.urlencoded({
+    extended: true,
+  })
+);
+
 // GET
 app.get("/", (request, response) => {
   response.json(data);
+});
+
+// POST - express.json and express.urlencoded
+app.post("/item", (request, response) => {
+  console.log(request.body);
+  response.send(request.body);
 });
 
 // GET with next
@@ -51,7 +65,8 @@ app.get("/class/:id", (req, res) => {
 app
   .route("/class")
   .get((request, response) => {
-    response.send("Retrieve class info");
+    //response.send("Retrieve class info");
+    throw new Error();
   })
   .post((request, response) => {
     response.send("Create class info");
@@ -88,6 +103,11 @@ app.put("/edit", (request, response) => {
 // DELETE
 app.delete("/delete", (request, response) => {
   response.send("This is a DELETE request at /delete");
+});
+
+app.use((err, req, res, next) => {
+  console.error(err);
+  response.status(500).send("Something is broken!");
 });
 
 app.listen(PORT, () => {
